@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #f1f8ea;
+  color: #4a342a;
+  font-family: var(--font-body), "Nunito Sans", system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-hand), "LXGW WenKai TC", serif;
+  font-weight: 700;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #bfd8a7;
+  color: #4a342a;
+}
+
+@keyframes koi-swim-one {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(56px, 3px);
+  }
+}
+
+@keyframes koi-swim-two {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-48px, -4px);
+  }
+}
+
+@keyframes koi-swim-three {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(44px, -6px);
+  }
+}
+
+.koi-swim-one {
+  animation: koi-swim-one 4.8s steps(7, end) infinite;
+}
+
+.koi-swim-two {
+  animation: koi-swim-two 6.2s steps(8, end) infinite;
+}
+
+.koi-swim-three {
+  animation: koi-swim-three 5.5s steps(7, end) infinite;
+}
+
+@keyframes highland-cow-wander {
+  0%,
+  20% {
+    left: 8%;
+    bottom: 24%;
+  }
+  36%,
+  48% {
+    left: 46%;
+    bottom: 24%;
+  }
+  62%,
+  72% {
+    left: 28%;
+    bottom: 34%;
+  }
+  86% {
+    left: 8%;
+    bottom: 34%;
+  }
+  94%,
+  100% {
+    left: 8%;
+    bottom: 24%;
+  }
+}
+
+@keyframes highland-cow-facing {
+  0%,
+  19.9% {
+    transform: scaleX(1);
+  }
+  20%,
+  47.9% {
+    transform: scaleX(-1);
+  }
+  48%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes highland-cow-graze {
+  0%,
+  48%,
+  57%,
+  72%,
+  80%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  51%,
+  55%,
+  75%,
+  78% {
+    transform: rotate(-16deg) translateY(8px);
+  }
+}
+
+@keyframes highland-cow-sleep-pose {
+  0%,
+  15%,
+  96%,
+  100% {
+    transform: translateY(10px) scaleY(0.78);
+  }
+  20%,
+  92% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes highland-cow-sleep-eyes {
+  0%,
+  15%,
+  96%,
+  100% {
+    height: 2px;
+    transform: translateY(3px);
+  }
+  20%,
+  92% {
+    height: 8px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes highland-cow-sleep-legs {
+  0%,
+  15%,
+  96%,
+  100% {
+    opacity: 0;
+  }
+  20%,
+  92% {
+    opacity: 1;
+  }
+}
+
+@keyframes highland-cow-sleep-mark {
+  0%,
+  15%,
+  96%,
+  100% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+  20%,
+  92% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+.highland-cow-wander {
+  animation: highland-cow-wander 60s steps(36, end) infinite;
+}
+
+.highland-cow-facing {
+  animation: highland-cow-facing 60s steps(1, end) infinite;
+}
+
+.highland-cow-head {
+  animation: highland-cow-graze 60s steps(5, end) infinite;
+}
+
+.highland-cow-pose {
+  animation: highland-cow-sleep-pose 60s steps(4, end) infinite;
+}
+
+.highland-cow-eye {
+  animation: highland-cow-sleep-eyes 60s steps(2, end) infinite;
+}
+
+.highland-cow-leg {
+  animation: highland-cow-sleep-legs 60s steps(2, end) infinite;
+}
+
+.highland-cow-sleep {
+  animation: highland-cow-sleep-mark 60s steps(2, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .koi-swim-one,
+  .koi-swim-two,
+  .koi-swim-three,
+  .highland-cow-wander,
+  .highland-cow-facing,
+  .highland-cow-head,
+  .highland-cow-pose,
+  .highland-cow-eye,
+  .highland-cow-leg,
+  .highland-cow-sleep {
+    animation: none;
+  }
+
+  .highland-cow-sleep {
+    opacity: 0;
+  }
+}
