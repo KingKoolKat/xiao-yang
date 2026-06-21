@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { logoutAction } from "@/app/auth/actions";
 
 interface PixelHudProps {
   streak: number;
@@ -64,6 +65,14 @@ export function PixelHud({
             Months
           </button>
         ) : null}
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="border-2 border-garden-cocoa bg-garden-ivory px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
+          >
+            Sign out
+          </button>
+        </form>
       </div>
     </header>
   );

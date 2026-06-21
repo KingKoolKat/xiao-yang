@@ -31,19 +31,29 @@ export function AvatarPixelEditor() {
   const [sprite, setSprite] = useState<AvatarSprite>(() => createDefaultAvatarSprite());
   const [selectedPixel, setSelectedPixel] = useState<AvatarPixel>(AVATAR_PALETTE[1]);
   const [mirrorMode, setMirrorMode] = useState(true);
-  const [saveStatus, setSaveStatus] = useState("Not saved yet");
+  const [saveStatus, setSaveStatus] = useState("No unsaved changes");
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    void getSharedAvatarSprite().then(setSprite);
+    void getSharedAvatarSprite().then((sharedSprite) => {
+      setSprite(sharedSprite);
+      setSaveStatus("Loaded shared avatar");
+    });
   }, []);
 
-  function commitSprite(nextSprite: AvatarSprite) {
+  function updateDraft(nextSprite: AvatarSprite) {
     setSprite(nextSprite);
+    setIsDirty(true);
+    setSaveStatus("Unsaved changes");
+  }
+
+  function saveAvatar() {
     setSaveStatus("Saving...");
-    saveLocalAvatarSprite(nextSprite);
-    void saveAvatarSpriteAction(nextSprite)
+    saveLocalAvatarSprite(sprite);
+    void saveAvatarSpriteAction(sprite)
       .then(({ mode }) => {
         setSaveStatus(mode === "supabase" ? "Saved to Supabase" : "Saved locally");
+        setIsDirty(false);
         window.dispatchEvent(new Event(AVATAR_SPRITE_EVENT));
       })
       .catch((error: unknown) => {
@@ -65,15 +75,15 @@ export function AvatarPixelEditor() {
       nextSprite.pixels[getIndex(mirroredX, y)] = selectedPixel;
     }
 
-    commitSprite(nextSprite);
+    updateDraft(nextSprite);
   }
 
   function resetSprite() {
-    commitSprite(createDefaultAvatarSprite());
+    updateDraft(createDefaultAvatarSprite());
   }
 
   function clearSprite() {
-    commitSprite({
+    updateDraft({
       width: AVATAR_GRID_WIDTH,
       height: AVATAR_GRID_HEIGHT,
       pixels: Array.from({ length: AVATAR_GRID_WIDTH * AVATAR_GRID_HEIGHT }, () => null)
@@ -86,7 +96,7 @@ export function AvatarPixelEditor() {
         <div>
           <h2 className="text-xl font-bold text-garden-cocoa">Avatar painter</h2>
           <p className="mt-1 text-sm text-garden-taupe">
-            Paint the sprite. Changes save automatically and sync through Supabase when configured.
+            Paint the shared sprite, then save when it is ready. Saving updates the avatar for every learner.
           </p>
           <p className="mt-1 text-xs font-bold uppercase text-garden-moss">{saveStatus}</p>
         </div>
@@ -191,6 +201,15 @@ export function AvatarPixelEditor() {
               Clear canvas
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={saveAvatar}
+            disabled={!isDirty}
+            className="w-full rounded-xl border-2 border-garden-cocoa bg-garden-clay px-4 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:bg-garden-taupe"
+          >
+            Save avatar for everyone
+          </button>
 
           <p className="rounded-xl border border-garden-seed bg-garden-mist p-3 text-sm text-garden-taupe">
             Tip: keep mirror on for the body and hair shape, then turn it off for tiny details.

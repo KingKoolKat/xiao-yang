@@ -50,7 +50,11 @@ function AdminLogin({ hasError }: { hasError: boolean }) {
   const usingDefaultPassword = !process.env.ADMIN_PASSWORD;
 
   return (
-    <AppShell title="Admin Login" subtitle="Lesson builder access">
+    <AppShell
+      title="Admin Login"
+      subtitle="Lesson builder access"
+      showLogout={false}
+    >
       <section className="mx-auto max-w-md rounded-2xl border border-garden-pond bg-garden-ivory p-5 shadow-soft">
         <form action={loginAction} className="space-y-4">
           <label className="block space-y-2">

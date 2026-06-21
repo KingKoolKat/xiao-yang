@@ -1,3 +1,6 @@
+-- Optional example content only. Do not run this file for an empty production
+-- course. Use /admin to create real lessons instead.
+
 delete from lessons
 where id in (
   '00000000-0000-4000-8000-000000000001',

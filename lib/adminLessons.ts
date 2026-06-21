@@ -1,4 +1,3 @@
-import { getMockLessons, mockWords } from "@/lib/mockData";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import type { Lesson, Word } from "@/lib/types";
 
@@ -45,21 +44,11 @@ function emptyStore(): AdminLessonStore {
 }
 
 function mergeLessons(overrides: Lesson[]): Lesson[] {
-  const lessonsByDay = new Map<number, Lesson>();
-
-  getMockLessons().forEach((lesson) => lessonsByDay.set(lesson.dayNumber, lesson));
-  overrides.forEach((lesson) => lessonsByDay.set(lesson.dayNumber, lesson));
-
-  return Array.from(lessonsByDay.values()).sort((a, b) => a.dayNumber - b.dayNumber);
+  return [...overrides].sort((a, b) => a.dayNumber - b.dayNumber);
 }
 
 function mergeWords(overrides: Word[]): Word[] {
-  const wordsById = new Map<string, Word>();
-
-  mockWords.forEach((word) => wordsById.set(word.id, word));
-  overrides.forEach((word) => wordsById.set(word.id, word));
-
-  return Array.from(wordsById.values());
+  return [...overrides];
 }
 
 function mapLessonRow(lesson: LessonRow, lessonWords: LessonWordRow[]): Lesson {

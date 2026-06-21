@@ -32,6 +32,8 @@ NEXT_PUBLIC_APP_TODAY_DATE=2026-07-01
 
 If the Supabase values are missing, the app uses mock lessons plus local admin edits, and stores completed lessons in `localStorage` under the Xiao Yang Learns Chinese progress key.
 When Supabase is configured, `/admin` saves lesson metadata, YouTube URLs, words, and the avatar sprite to Supabase so other devices see the same lesson content. Admin writes run through protected Next.js Server Actions using `SUPABASE_SECRET_KEY`; that key must never use a `NEXT_PUBLIC_` prefix or be exposed in browser code.
+Learner sign-in uses Supabase Auth. Completed lessons are stored in
+`user_progress` under the signed-in user ID and synchronize across devices.
 By default, the mock app assumes the course starts on July 1, 2026 and that the current app day is July 1, 2026.
 
 ## Data Model
@@ -74,8 +76,26 @@ For Supabase:
 
 For an existing project, run `supabase/secure-admin-writes.sql` once after
 deploying this version. It enables RLS, keeps lesson/avatar reads public, and
-blocks writes made with the anon key. Admin writes continue through the
-password-protected server action.
+blocks lesson/avatar writes made with the anon key. It also enables
+authenticated per-user progress policies. If you already ran that file before
+authentication was added, run `supabase/authenticated-progress.sql`.
+
+## Learner Authentication
+
+The `/login` page is invite-only. Every account receives isolated progress
+through `auth.uid()` RLS policies.
+
+1. In Supabase, open **Authentication → Providers → Email** and disable public
+   user sign-ups.
+2. Open **Authentication → Users → Add user**.
+3. Create two confirmed accounts: Xiao Yang's learner account and your testing
+   account.
+4. Run `supabase/authenticated-progress.sql` in the SQL Editor for an existing
+   database.
+5. Sign in at `/login`.
+
+The learner routes redirect signed-out visitors to `/login`. `/admin` remains
+separate and continues to use `ADMIN_PASSWORD`.
 
 The `/admin` page also has an avatar pixel painter. With Supabase configured, that avatar is saved in `app_settings` and loaded by the main app on other devices.
 

@@ -57,9 +57,58 @@ export function saveLocalProgress(progress: UserProgress[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
+function mapProgressRow(row: {
+  id: string;
+  user_id: string;
+  lesson_id: string;
+  completed_at: string | null;
+  score: number | null;
+}): UserProgress {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    lessonId: row.lesson_id,
+    completedAt: row.completed_at ?? new Date().toISOString(),
+    score: row.score ?? 100
+  };
+}
+
+async function getAuthenticatedUserId(): Promise<string | null> {
+  if (!isSupabaseConfigured || !supabase) {
+    return null;
+  }
+
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  return user.id;
+}
+
 export async function getUserProgress(): Promise<UserProgress[]> {
   if (isSupabaseConfigured && supabase) {
-    // TODO: Replace localStorage fallback with Supabase query scoped to the authenticated user.
+    const userId = await getAuthenticatedUserId();
+
+    if (!userId) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from("user_progress")
+      .select("id, user_id, lesson_id, completed_at, score")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map(mapProgressRow);
   }
 
   return getLocalProgress();
@@ -77,6 +126,27 @@ export async function completeLesson(lessonId: string): Promise<UserProgress[]> 
     return progress;
   }
 
+  if (isSupabaseConfigured && supabase) {
+    const userId = await getAuthenticatedUserId();
+
+    if (!userId) {
+      throw new Error("You must be signed in to complete a lesson.");
+    }
+
+    const { error } = await supabase.from("user_progress").insert({
+      user_id: userId,
+      lesson_id: lessonId,
+      completed_at: `${getAppTodayDate()}T12:00:00.000Z`,
+      score: 100
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return getUserProgress();
+  }
+
   const nextProgress = [
     ...progress,
     {
@@ -87,10 +157,6 @@ export async function completeLesson(lessonId: string): Promise<UserProgress[]> 
       score: 100
     }
   ];
-
-  if (isSupabaseConfigured && supabase) {
-    // TODO: Insert user_progress row in Supabase once auth is enabled.
-  }
 
   saveLocalProgress(nextProgress);
 

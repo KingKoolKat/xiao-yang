@@ -1,13 +1,8 @@
 import { getSharedLessons, getSharedWords } from "@/lib/adminLessons";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import type { LearnedWord, UserProgress } from "@/lib/types";
 import { getCompletedLessonIds } from "@/lib/progress";
 
 export async function getLearnedWords(progress: UserProgress[]): Promise<LearnedWord[]> {
-  if (isSupabaseConfigured && supabase) {
-    // TODO: Query completed user_progress -> lesson_words -> words for the authenticated user.
-  }
-
   const completedLessonIds = getCompletedLessonIds(progress);
   const lessons = await getSharedLessons();
   const words = await getSharedWords();

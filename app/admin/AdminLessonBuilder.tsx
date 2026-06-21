@@ -35,20 +35,6 @@ interface AdminLessonBuilderProps {
   logoutAction: () => Promise<void>;
 }
 
-const initialWords: DraftWord[] = [
-  {
-    id: "draft-word-1",
-    hanzi: "早安",
-    pinyin: "zao an",
-    english: "good morning",
-    partOfSpeech: "phrase",
-    exampleHanzi: "",
-    examplePinyin: "",
-    exampleEnglish: "",
-    notes: ""
-  }
-];
-
 function createDraftId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -176,12 +162,12 @@ export function AdminLessonBuilder({ logoutAction }: AdminLessonBuilderProps) {
   const [availableWords, setAvailableWords] = useState<Word[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState("new");
   const [editingLessonId, setEditingLessonId] = useState(createLessonId());
-  const [dayNumber, setDayNumber] = useState("8");
-  const [title, setTitle] = useState("早安 — Good morning");
-  const [description, setDescription] = useState("A gentle morning greeting.");
+  const [dayNumber, setDayNumber] = useState("1");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [unlockDate, setUnlockDate] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [words, setWords] = useState<DraftWord[]>(initialWords);
+  const [words, setWords] = useState<DraftWord[]>(() => [emptyWord()]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -320,7 +306,11 @@ export function AdminLessonBuilder({ logoutAction }: AdminLessonBuilderProps) {
   }
 
   return (
-    <AppShell title="Lesson Admin" subtitle="Add a YouTube lesson and dictionary words.">
+    <AppShell
+      title="Lesson Admin"
+      subtitle="Add a YouTube lesson and dictionary words."
+      showLogout={false}
+    >
       <form action={logoutAction} className="mb-5 flex justify-end">
         <button
           type="submit"
