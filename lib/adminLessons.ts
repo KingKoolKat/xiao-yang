@@ -9,12 +9,6 @@ export interface AdminLessonStore {
   words: Word[];
 }
 
-export interface SaveSharedLessonResult {
-  mode: "supabase" | "local";
-  lesson: Lesson;
-  words: Word[];
-}
-
 interface LessonRow {
   id: string;
   day_number: number;
@@ -148,73 +142,6 @@ async function getSupabaseWords(): Promise<Word[] | null> {
   return (data as WordRow[]).map(mapWordRow);
 }
 
-async function saveSupabaseLesson(lesson: Lesson, words: Word[]): Promise<void> {
-  if (!isSupabaseConfigured || !supabase) {
-    throw new Error("Supabase is not configured.");
-  }
-
-  const { error: lessonError } = await supabase.from("lessons").upsert(
-    {
-      id: lesson.id,
-      day_number: lesson.dayNumber,
-      title: lesson.title,
-      description: lesson.description ?? null,
-      unlock_date: lesson.unlockDate,
-      video_url: lesson.videoUrl ?? null,
-      personal_note: lesson.personalNote ?? null,
-      created_at: lesson.createdAt ?? new Date().toISOString()
-    },
-    { onConflict: "id" }
-  );
-
-  if (lessonError) {
-    throw lessonError;
-  }
-
-  if (words.length > 0) {
-    const { error: wordsError } = await supabase.from("words").upsert(
-      words.map((word) => ({
-        id: word.id,
-        hanzi: word.hanzi,
-        pinyin: word.pinyin,
-        english: word.english,
-        part_of_speech: word.partOfSpeech ?? null,
-        example_hanzi: word.exampleHanzi ?? null,
-        example_pinyin: word.examplePinyin ?? null,
-        example_english: word.exampleEnglish ?? null,
-        notes: word.notes ?? null
-      })),
-      { onConflict: "id" }
-    );
-
-    if (wordsError) {
-      throw wordsError;
-    }
-  }
-
-  const { error: deleteLinksError } = await supabase
-    .from("lesson_words")
-    .delete()
-    .eq("lesson_id", lesson.id);
-
-  if (deleteLinksError) {
-    throw deleteLinksError;
-  }
-
-  if (words.length > 0) {
-    const { error: linksError } = await supabase.from("lesson_words").insert(
-      words.map((word) => ({
-        lesson_id: lesson.id,
-        word_id: word.id
-      }))
-    );
-
-    if (linksError) {
-      throw linksError;
-    }
-  }
-}
-
 function safeParseStore(rawValue: string | null): AdminLessonStore {
   if (!rawValue) {
     return emptyStore();
@@ -307,32 +234,4 @@ export function saveLocalAdminLesson(lesson: Lesson, words: Word[]): AdminLesson
   saveLocalAdminLessonStore(nextStore);
 
   return nextStore;
-}
-
-export async function saveSharedLesson(
-  lesson: Lesson,
-  words: Word[]
-): Promise<SaveSharedLessonResult> {
-  if (isSupabaseConfigured && supabase) {
-    try {
-      await saveSupabaseLesson(lesson, words);
-      saveLocalAdminLesson(lesson, words);
-
-      return {
-        mode: "supabase",
-        lesson,
-        words
-      };
-    } catch (error) {
-      console.warn("Supabase lesson save failed. Falling back to localStorage.", error);
-    }
-  }
-
-  saveLocalAdminLesson(lesson, words);
-
-  return {
-    mode: "local",
-    lesson,
-    words
-  };
 }

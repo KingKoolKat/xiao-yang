@@ -3,10 +3,11 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { saveLessonAction } from "@/app/admin/actions";
 import { AvatarPixelEditor } from "@/components/admin/AvatarPixelEditor";
 import { DictionaryCard } from "@/components/DictionaryCard";
 import { ProgressPill } from "@/components/ProgressPill";
-import { getSharedWords, saveSharedLesson } from "@/lib/adminLessons";
+import { getSharedWords, saveLocalAdminLesson } from "@/lib/adminLessons";
 import { getLessons } from "@/lib/lessons";
 import type { LearnedWord, Lesson, Word } from "@/lib/types";
 import { getYouTubeVideoId } from "@/lib/youtube";
@@ -282,7 +283,22 @@ export function AdminLessonBuilder({ logoutAction }: AdminLessonBuilderProps) {
       savedWords
     );
 
-    const saveResult = await saveSharedLesson(savedLesson, savedWords);
+    setMessage("Saving lesson...");
+
+    let saveResult: Awaited<ReturnType<typeof saveLessonAction>>;
+
+    try {
+      saveResult = await saveLessonAction(savedLesson, savedWords);
+      saveLocalAdminLesson(savedLesson, savedWords);
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? `Save failed: ${error.message}`
+          : "Save failed. Please try again."
+      );
+      return;
+    }
+
     setAvailableLessons((currentLessons) => {
       const nextLessons = [
         ...currentLessons.filter(

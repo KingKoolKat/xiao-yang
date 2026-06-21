@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { saveAvatarSpriteAction } from "@/app/admin/actions";
 import { PixelAvatarSprite } from "@/components/game/PixelAvatar";
 import {
   AVATAR_GRID_HEIGHT,
@@ -11,7 +12,7 @@ import {
   type AvatarSprite,
   createDefaultAvatarSprite,
   getSharedAvatarSprite,
-  saveSharedAvatarSprite
+  saveLocalAvatarSprite
 } from "@/lib/avatar";
 
 function cloneSprite(sprite: AvatarSprite): AvatarSprite {
@@ -39,11 +40,17 @@ export function AvatarPixelEditor() {
   function commitSprite(nextSprite: AvatarSprite) {
     setSprite(nextSprite);
     setSaveStatus("Saving...");
-    window.dispatchEvent(new Event(AVATAR_SPRITE_EVENT));
-    void saveSharedAvatarSprite(nextSprite).then((mode) => {
-      setSaveStatus(mode === "supabase" ? "Saved to Supabase" : "Saved locally");
-      window.dispatchEvent(new Event(AVATAR_SPRITE_EVENT));
-    });
+    saveLocalAvatarSprite(nextSprite);
+    void saveAvatarSpriteAction(nextSprite)
+      .then(({ mode }) => {
+        setSaveStatus(mode === "supabase" ? "Saved to Supabase" : "Saved locally");
+        window.dispatchEvent(new Event(AVATAR_SPRITE_EVENT));
+      })
+      .catch((error: unknown) => {
+        setSaveStatus(
+          error instanceof Error ? `Save failed: ${error.message}` : "Save failed"
+        );
+      });
   }
 
   function paintPixel(index: number) {

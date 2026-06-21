@@ -23,6 +23,7 @@ Create `.env.local` when you are ready to connect Supabase:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SECRET_KEY=your-server-only-secret-key
 ADMIN_PASSWORD=4921
 ADMIN_SESSION_SECRET=change-this-for-production
 NEXT_PUBLIC_COURSE_START_DATE=2026-07-01
@@ -30,7 +31,7 @@ NEXT_PUBLIC_APP_TODAY_DATE=2026-07-01
 ```
 
 If the Supabase values are missing, the app uses mock lessons plus local admin edits, and stores completed lessons in `localStorage` under the Xiao Yang Learns Chinese progress key.
-When Supabase is configured, `/admin` saves lesson metadata, YouTube URLs, words, and the avatar sprite to Supabase so other devices see the same lesson content.
+When Supabase is configured, `/admin` saves lesson metadata, YouTube URLs, words, and the avatar sprite to Supabase so other devices see the same lesson content. Admin writes run through protected Next.js Server Actions using `SUPABASE_SECRET_KEY`; that key must never use a `NEXT_PUBLIC_` prefix or be exposed in browser code.
 By default, the mock app assumes the course starts on July 1, 2026 and that the current app day is July 1, 2026.
 
 ## Data Model
@@ -68,8 +69,13 @@ For Supabase:
 
 1. Run `supabase/schema.sql` in your Supabase SQL editor.
 2. Optionally run `supabase/seed.sql`.
-3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and the server-only `SUPABASE_SECRET_KEY`.
 4. Use `/admin` to add or edit lessons.
+
+For an existing project, run `supabase/secure-admin-writes.sql` once after
+deploying this version. It enables RLS, keeps lesson/avatar reads public, and
+blocks writes made with the anon key. Admin writes continue through the
+password-protected server action.
 
 The `/admin` page also has an avatar pixel painter. With Supabase configured, that avatar is saved in `app_settings` and loaded by the main app on other devices.
 

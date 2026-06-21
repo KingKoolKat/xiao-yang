@@ -170,7 +170,7 @@ function getLocalAvatarSprite(): AvatarSprite {
   return parseStoredAvatarSprite(window.localStorage.getItem(AVATAR_STORAGE_KEY));
 }
 
-function saveLocalAvatarSprite(sprite: AvatarSprite): void {
+export function saveLocalAvatarSprite(sprite: AvatarSprite): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -192,30 +192,4 @@ export async function getSharedAvatarSprite(): Promise<AvatarSprite> {
   }
 
   return getLocalAvatarSprite();
-}
-
-export async function saveSharedAvatarSprite(
-  sprite: AvatarSprite
-): Promise<"supabase" | "local"> {
-  const normalizedSprite = normalizeAvatarSprite(sprite);
-  saveLocalAvatarSprite(normalizedSprite);
-
-  if (isSupabaseConfigured && supabase) {
-    const { error } = await supabase.from("app_settings").upsert(
-      {
-        key: AVATAR_SETTING_KEY,
-        value: normalizedSprite,
-        updated_at: new Date().toISOString()
-      },
-      { onConflict: "key" }
-    );
-
-    if (!error) {
-      return "supabase";
-    }
-
-    console.warn("Supabase avatar save failed. Saved locally instead.", error);
-  }
-
-  return "local";
 }

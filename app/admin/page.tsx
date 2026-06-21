@@ -1,12 +1,14 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { AdminLessonBuilder } from "@/app/admin/AdminLessonBuilder";
-
-const ADMIN_COOKIE_NAME = "xiao-yangs-admin-session";
-const ADMIN_SESSION_LABEL = "xiao-yangs-garden-admin";
-const DEFAULT_DEV_PASSWORD = "4921";
+import {
+  ADMIN_COOKIE_NAME,
+  DEFAULT_DEV_PASSWORD,
+  createAdminSessionValue,
+  isAdminAuthenticated,
+  verifyAdminPassword
+} from "@/lib/adminAuth";
 
 interface AdminPageProps {
   searchParams?: Promise<{
@@ -14,39 +16,18 @@ interface AdminPageProps {
   }>;
 }
 
-function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD || DEFAULT_DEV_PASSWORD;
-}
-
-function getSessionSecret(): string {
-  return process.env.ADMIN_SESSION_SECRET || getAdminPassword();
-}
-
-function createSessionValue(): string {
-  return createHmac("sha256", getSessionSecret())
-    .update(ADMIN_SESSION_LABEL)
-    .digest("hex");
-}
-
-function valuesMatch(left: string, right: string): boolean {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-
-  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
-}
-
 async function loginAction(formData: FormData) {
   "use server";
 
   const password = String(formData.get("password") ?? "");
 
-  if (!valuesMatch(password, getAdminPassword())) {
+  if (!verifyAdminPassword(password)) {
     redirect("/admin?error=1");
   }
 
   const cookieStore = await cookies();
 
-  cookieStore.set(ADMIN_COOKIE_NAME, createSessionValue(), {
+  cookieStore.set(ADMIN_COOKIE_NAME, createAdminSessionValue(), {
     httpOnly: true,
     maxAge: 60 * 60 * 12,
     path: "/admin",
@@ -63,13 +44,6 @@ async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete(ADMIN_COOKIE_NAME);
   redirect("/admin");
-}
-
-async function isAdminAuthed(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
-
-  return Boolean(sessionCookie && valuesMatch(sessionCookie, createSessionValue()));
 }
 
 function AdminLogin({ hasError }: { hasError: boolean }) {
@@ -114,7 +88,10 @@ function AdminLogin({ hasError }: { hasError: boolean }) {
 }
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
-  const [isAuthed, params] = await Promise.all([isAdminAuthed(), searchParams]);
+  const [isAuthed, params] = await Promise.all([
+    isAdminAuthenticated(),
+    searchParams
+  ]);
 
   if (!isAuthed) {
     return <AdminLogin hasError={params?.error === "1"} />;
