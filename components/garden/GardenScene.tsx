@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent, type MouseEvent } from "react";
+import { useEffect, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { PixelAvatar } from "@/components/game/PixelAvatar";
 import {
   getCourseOrderedMonthFlowers,
@@ -355,7 +355,7 @@ function Narcissus({ flower }: { flower: MonthFlower }) {
   );
 }
 
-function PixelMonthFlower({ flower }: { flower: MonthFlower }) {
+export function PixelMonthFlower({ flower }: { flower: MonthFlower }) {
   const bloom = [
     <Carnation key="carnation" flower={flower} />,
     <Violet key="violet" flower={flower} />,
@@ -496,6 +496,19 @@ export function GardenScene({
   const [avatarY, setAvatarY] = useState(42);
   const [facing, setFacing] = useState<FacingDirection>("right");
   const [isSitting, setIsSitting] = useState(false);
+  const [showEmptyMessage, setShowEmptyMessage] = useState(!hasDecorations);
+
+  useEffect(() => {
+    if (hasDecorations) {
+      setShowEmptyMessage(false);
+      return;
+    }
+
+    setShowEmptyMessage(true);
+    const timeoutId = window.setTimeout(() => setShowEmptyMessage(false), 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasDecorations]);
 
   function isInsideObstacle(point: WalkPoint, obstacle: WalkObstacle): boolean {
     return (
@@ -637,8 +650,8 @@ export function GardenScene({
 
         <MonthFlowerBed completedMonthIndexes={completedMonthIndexes} />
 
-        {!hasDecorations ? (
-          <div className="pointer-events-none absolute left-1/2 top-16 z-40 w-[78%] -translate-x-1/2 border-4 border-garden-cocoa bg-garden-ivory p-3 text-center shadow-[4px_4px_0_#4A342A] sm:w-auto">
+        {!hasDecorations && showEmptyMessage ? (
+          <div className="pointer-events-none absolute left-1/2 top-16 z-40 w-[78%] -translate-x-1/2 border-4 border-garden-cocoa bg-garden-ivory p-3 text-center opacity-100 shadow-[4px_4px_0_#4A342A] transition-opacity duration-300 sm:w-auto">
             <p className="font-mono text-[10px] font-black uppercase text-garden-moss">
               {t("littleGarden")}
             </p>

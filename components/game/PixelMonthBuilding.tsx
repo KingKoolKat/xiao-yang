@@ -1,6 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { PixelMonthFlower } from "@/components/garden/GardenScene";
+import { monthFlowers } from "@/lib/game/monthFlowers";
 import { getMonthTheme } from "@/lib/game/monthThemes";
 import { getLocalizedMonthName, useLanguage } from "@/lib/i18n";
 import type { MonthBuilding } from "@/lib/game/types";
@@ -41,6 +43,7 @@ export function PixelMonthBuilding({
   const { language, t } = useLanguage();
   const disabled = building.status === "locked" || building.status === "empty";
   const theme = getMonthTheme(building.monthIndex);
+  const flower = monthFlowers[building.monthIndex];
   const cardStyle: CSSProperties = {
     backgroundColor: getCardBackground(building),
     color: disabled ? "#766456" : "#4A342A",
@@ -58,21 +61,14 @@ export function PixelMonthBuilding({
       }`}
     >
       <div
-        className="mx-auto mb-3 h-12 w-16 border-4 border-garden-cocoa"
-        style={{ backgroundColor: theme.surface }}
+        className="mx-auto mb-2 flex h-14 w-16 items-center justify-center"
+        role="img"
+        aria-label={`${flower.flowerName} silhouette`}
+        title={`${flower.monthName}: ${flower.flowerName}`}
+        style={{ color: disabled ? "#766456" : theme.accent }}
       >
-        <div
-          className="h-3 border-b-4 border-garden-cocoa"
-          style={{ backgroundColor: theme.accent }}
-        />
-        <div className="grid grid-cols-3 gap-1 p-2">
-          {theme.previewSwatches.map((color, index) => (
-            <span
-              key={`${building.id}-swatch-${index}`}
-              className="h-2 border border-garden-cocoa"
-              style={{ backgroundColor: color }}
-            />
-          ))}
+        <div className="scale-125 [&_span]:!border-current [&_span]:!bg-current">
+          <PixelMonthFlower flower={flower} />
         </div>
       </div>
       <p
