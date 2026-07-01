@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Video } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface YouTubeLessonVideoProps {
   videoId: string | null;
@@ -92,6 +93,7 @@ export function YouTubeLessonVideo({
   title,
   onEnded
 }: YouTubeLessonVideoProps) {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const onEndedRef = useRef(onEnded);
   const [isReady, setIsReady] = useState(false);
@@ -134,29 +136,31 @@ export function YouTubeLessonVideo({
               }
             },
             onError: () => {
-              setErrorMessage("This YouTube video could not be played here.");
+              setErrorMessage(t("videoPlayError"));
             }
           }
         });
       })
-      .catch((error) => {
-        setErrorMessage(error instanceof Error ? error.message : "Could not load YouTube.");
+      .catch(() => {
+        setErrorMessage(t("videoLoadError"));
       });
 
     return () => {
       ignore = true;
       player?.destroy();
     };
-  }, [videoId]);
+  }, [t, videoId]);
 
   if (!videoId) {
     return (
       <div className="flex aspect-video items-center justify-center border-4 border-garden-cocoa bg-garden-mist p-6 text-center shadow-[5px_5px_0_#4A342A]">
         <div>
           <Video className="mx-auto h-8 w-8 text-garden-moss" aria-hidden="true" />
-          <h2 className="mt-3 font-hand text-3xl text-garden-cocoa">Video not ready</h2>
+          <h2 className="mt-3 font-hand text-3xl text-garden-cocoa">
+            {t("videoNotReady")}
+          </h2>
           <p className="mt-2 text-sm font-bold text-garden-taupe">
-            Add a valid unlisted YouTube link in admin.
+            {t("addVideoAdmin")}
           </p>
         </div>
       </div>
@@ -172,7 +176,7 @@ export function YouTubeLessonVideo({
       />
       {!isReady && !errorMessage ? (
         <div className="absolute inset-0 flex items-center justify-center bg-garden-mist p-4 text-center font-mono text-xs font-black uppercase text-garden-moss">
-          Loading YouTube lesson
+          {t("loadingVideo")}
         </div>
       ) : null}
       {errorMessage ? (

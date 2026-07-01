@@ -54,6 +54,7 @@ function AdminLogin({ hasError }: { hasError: boolean }) {
       title="Admin Login"
       subtitle="Lesson builder access"
       showLogout={false}
+      showLanguageToggle={false}
     >
       <section className="mx-auto max-w-md rounded-2xl border border-garden-pond bg-garden-ivory p-5 shadow-soft">
         <form action={loginAction} className="space-y-4">

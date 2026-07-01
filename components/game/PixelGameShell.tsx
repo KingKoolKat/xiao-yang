@@ -16,6 +16,11 @@ import {
   getMonthGridPosition
 } from "@/lib/game/monthBuildings";
 import { getMonthTheme } from "@/lib/game/monthThemes";
+import {
+  getLocalizedMonthName,
+  getLocalizedWeekdays,
+  useLanguage
+} from "@/lib/i18n";
 import type { CalendarDayTile, GamePosition, MonthBuilding } from "@/lib/game/types";
 import { getLessons } from "@/lib/lessons";
 import {
@@ -40,9 +45,8 @@ function canStandOnDay(day?: CalendarDayTile): day is CalendarDayTile {
 
 const HUB_WIDTH = 3;
 const HUB_HEIGHT = 4;
-const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 export function PixelGameShell() {
+  const { language, t } = useLanguage();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [learnedWords, setLearnedWords] = useState<LearnedWord[]>([]);
@@ -52,7 +56,7 @@ export function PixelGameShell() {
   const [avatarPosition, setAvatarPosition] = useState<GamePosition>({ x: 4, y: 5 });
   const [selectedMonthIndex, setSelectedMonthIndex] = useState<number | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [message, setMessage] = useState("Choose a month.");
+  const [message, setMessage] = useState(() => t("chooseMonthMessage"));
   const [hasPlacedAvatar, setHasPlacedAvatar] = useState(false);
 
   useEffect(() => {
@@ -87,6 +91,18 @@ export function PixelGameShell() {
     [lessons, completedLessonIds, activeMonthIndex]
   );
   const streak = useMemo(() => calculateStreak(progress), [progress]);
+  const weekdayLabels = useMemo(
+    () => getLocalizedWeekdays(language),
+    [language]
+  );
+
+  useEffect(() => {
+    setMessage(
+      selectedMonthIndex === null
+        ? t("chooseMonthMessage")
+        : t("selectedDay")
+    );
+  }, [language, selectedMonthIndex, t]);
 
   useEffect(() => {
     if (selectedMonthIndex !== null && !hasPlacedAvatar) {
@@ -130,8 +146,8 @@ export function PixelGameShell() {
     if (dayIsAlreadySelected && day.lesson && day.status !== "locked") {
       setMessage(
         day.status === "completed"
-          ? `Revisiting Lesson Day ${day.lesson.dayNumber}.`
-          : `Entering Lesson Day ${day.lesson.dayNumber}.`
+          ? t("revisitLessonMessage", { day: day.lesson.dayNumber })
+          : t("enterLessonMessage", { day: day.lesson.dayNumber })
       );
       setSelectedLesson(day.lesson);
       return;
@@ -140,51 +156,55 @@ export function PixelGameShell() {
     setAvatarPosition(day.position);
 
     if (!day.lesson) {
-      setMessage(`${day.dateKey} does not have a lesson yet.`);
+      setMessage(t("dateNoLessonMessage", { date: day.dateKey }));
       return;
     }
 
     if (day.status === "locked") {
-      setMessage(`${day.dateKey} unlocks later.`);
+      setMessage(t("dateLockedMessage", { date: day.dateKey }));
       return;
     }
 
     setMessage(
       day.status === "completed"
-        ? `Selected completed Lesson Day ${day.lesson.dayNumber}.`
-        : `Selected Lesson Day ${day.lesson.dayNumber}.`
+        ? t("selectedCompletedMessage", { day: day.lesson.dayNumber })
+        : t("selectedLessonMessage", { day: day.lesson.dayNumber })
     );
-  }, [avatarPosition]);
+  }, [avatarPosition, t]);
 
   const openActiveDay = useCallback(() => {
     if (!activeDay) {
-      setMessage("Move onto a calendar day first.");
+      setMessage(t("moveCalendarDayMessage"));
       return;
     }
 
     if (activeDay.status === "locked") {
-      setMessage(`${activeDay.dateKey} unlocks later.`);
+      setMessage(t("dateLockedMessage", { date: activeDay.dateKey }));
       return;
     }
 
     if (!activeDay.lesson) {
-      setMessage(`${activeDay.dateKey} does not have a lesson yet.`);
+      setMessage(t("dateNoLessonMessage", { date: activeDay.dateKey }));
       return;
     }
 
     setMessage(
       activeDay.status === "completed"
-        ? `Revisiting Lesson Day ${activeDay.lesson.dayNumber}.`
-        : `Entering Lesson Day ${activeDay.lesson.dayNumber}.`
+        ? t("revisitLessonMessage", { day: activeDay.lesson.dayNumber })
+        : t("enterLessonMessage", { day: activeDay.lesson.dayNumber })
     );
     setSelectedLesson(activeDay.lesson);
-  }, [activeDay]);
+  }, [activeDay, t]);
 
   const enterBuilding = useCallback((building: MonthBuilding) => {
     setHubPosition(building.position);
 
     if (building.status === "locked" || building.status === "empty") {
-      setMessage(`${building.name} is still locked.`);
+      setMessage(
+        t("dateLockedMessage", {
+          date: getLocalizedMonthName(language, building.monthIndex)
+        })
+      );
       return;
     }
 
@@ -192,19 +212,23 @@ export function PixelGameShell() {
     setHasPlacedAvatar(false);
     setMessage(
       building.lessonCount > 0
-        ? `Opened ${building.name}.`
-        : `${building.name} has no lessons yet.`
+        ? t("openedMonthMessage", {
+            month: getLocalizedMonthName(language, building.monthIndex)
+          })
+        : t("monthNoLessonsMessage", {
+            month: getLocalizedMonthName(language, building.monthIndex)
+          })
     );
-  }, []);
+  }, [language, t]);
 
   const enterFocusedBuilding = useCallback(() => {
     if (!focusedBuilding) {
-      setMessage("Choose a month first.");
+      setMessage(t("chooseMonthFirstMessage"));
       return;
     }
 
     enterBuilding(focusedBuilding);
-  }, [enterBuilding, focusedBuilding]);
+  }, [enterBuilding, focusedBuilding, t]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -272,7 +296,7 @@ export function PixelGameShell() {
 
     setProgress(nextProgress);
     setLearnedWords(nextLearnedWords);
-    setMessage("Lesson complete. I’m proud of you.");
+    setMessage(t("lessonCompleteMessage"));
   }
 
   function goToToday() {
@@ -289,20 +313,22 @@ export function PixelGameShell() {
     if (selectedMonthIndex !== todayMonthIndex) {
       setSelectedMonthIndex(todayMonthIndex);
       setHasPlacedAvatar(false);
-      setMessage("Opening today’s month.");
+      setMessage(t("openingTodayMonthMessage"));
       return;
     }
 
     if (!calendarMap.todayDay) {
-      setMessage("Today’s lesson is not ready yet.");
+      setMessage(t("todayNotReadyMessage"));
       return;
     }
 
     setAvatarPosition(calendarMap.todayDay.position);
     setMessage(
       calendarMap.todayDay.lesson
-        ? `Today’s lesson is Day ${calendarMap.todayDay.lesson.dayNumber}.`
-        : `Today is ${calendarMap.todayDay.dateKey}.`
+        ? t("todayLessonMessage", {
+            day: calendarMap.todayDay.lesson.dayNumber
+          })
+        : t("todayDateMessage", { date: calendarMap.todayDay.dateKey })
     );
   }
 
@@ -314,7 +340,7 @@ export function PixelGameShell() {
     setSelectedMonthIndex(null);
     setSelectedLesson(null);
     setHasPlacedAvatar(false);
-    setMessage("Choose a month.");
+    setMessage(t("chooseMonthMessage"));
   }
 
   return (
@@ -323,11 +349,13 @@ export function PixelGameShell() {
         <PixelHud
           streak={streak}
           wordsLearned={learnedWords.length}
-          eyebrow={selectedMonthIndex === null ? "Xiao Yang Learns Chinese" : "Lesson Calendar"}
+          eyebrow={selectedMonthIndex === null ? t("brand") : t("lessonCalendar")}
           title={
             selectedMonthIndex === null
-              ? "小羊学中文"
-              : selectedBuilding?.name ?? "Month Lessons"
+              ? t("months")
+              : selectedBuilding
+                ? getLocalizedMonthName(language, selectedBuilding.monthIndex)
+                : t("monthLessons")
           }
           onGoToToday={goToToday}
           onBackToHub={selectedMonthIndex === null ? undefined : backToHub}
@@ -383,9 +411,11 @@ export function PixelGameShell() {
                 className="col-span-full border-4 border-garden-cocoa p-6 text-center shadow-[4px_4px_0_#4A342A]"
                 style={{ backgroundColor: activeMonthTheme.surface }}
               >
-                <p className="font-hand text-3xl text-garden-cocoa">No lessons yet</p>
+                <p className="font-hand text-3xl text-garden-cocoa">
+                  {t("noLessonsYet")}
+                </p>
                 <p className="mt-2 text-sm font-bold text-garden-taupe">
-                  Add lessons with unlock dates in this month and they’ll show up here.
+                  {t("addLessonsHint")}
                 </p>
               </div>
             ) : Array.from({ length: calendarMap.width * calendarMap.height }, (_, index) => {
@@ -431,7 +461,7 @@ export function PixelGameShell() {
               onClick={() => moveAvatar(0, -1)}
               className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
             >
-              Up
+              {t("up")}
             </button>
             <span />
             <button
@@ -439,21 +469,21 @@ export function PixelGameShell() {
               onClick={() => moveAvatar(-1, 0)}
               className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
             >
-              Left
+              {t("left")}
             </button>
             <button
               type="button"
               onClick={openActiveDay}
               className="border-4 border-garden-cocoa bg-garden-clay py-2 font-mono font-black text-white shadow-[3px_3px_0_#4A342A]"
             >
-              Open
+              {t("open")}
             </button>
             <button
               type="button"
               onClick={() => moveAvatar(1, 0)}
               className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
             >
-              Right
+              {t("right")}
             </button>
             <span />
             <button
@@ -461,7 +491,7 @@ export function PixelGameShell() {
               onClick={() => moveAvatar(0, 1)}
               className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
             >
-              Down
+              {t("down")}
             </button>
             <span />
           </div>

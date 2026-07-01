@@ -1,5 +1,6 @@
 import { PixelAvatar } from "@/components/game/PixelAvatar";
 import { PixelMonthBuilding } from "@/components/game/PixelMonthBuilding";
+import { useLanguage } from "@/lib/i18n";
 import type { GamePosition, MonthBuilding } from "@/lib/game/types";
 
 interface PixelGardenHubProps {
@@ -21,6 +22,8 @@ export function PixelGardenHub({
   onEnterFocusedBuilding,
   onMoveAvatar
 }: PixelGardenHubProps) {
+  const { t } = useLanguage();
+
   return (
     <main className="border-4 border-garden-cocoa bg-garden-mist p-3 shadow-[8px_8px_0_#4A342A]">
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -51,7 +54,7 @@ export function PixelGardenHub({
           onClick={() => onMoveAvatar(0, -1)}
           className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Up
+          {t("up")}
         </button>
         <span />
         <button
@@ -59,21 +62,21 @@ export function PixelGardenHub({
           onClick={() => onMoveAvatar(-1, 0)}
           className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Left
+          {t("left")}
         </button>
         <button
           type="button"
           onClick={onEnterFocusedBuilding}
           className="border-4 border-garden-cocoa bg-garden-clay py-2 font-mono font-black text-white shadow-[3px_3px_0_#4A342A]"
         >
-          Enter
+          {t("enter")}
         </button>
         <button
           type="button"
           onClick={() => onMoveAvatar(1, 0)}
           className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Right
+          {t("right")}
         </button>
         <span />
         <button
@@ -81,7 +84,7 @@ export function PixelGardenHub({
           onClick={() => onMoveAvatar(0, 1)}
           className="border-4 border-garden-cocoa bg-garden-ivory py-2 font-mono font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Down
+          {t("down")}
         </button>
         <span />
       </div>

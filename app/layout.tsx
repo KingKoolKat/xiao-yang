@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { LXGW_WenKai_TC, Nunito_Sans } from "next/font/google";
+import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const bodyFont = Nunito_Sans({
@@ -35,7 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${bodyFont.variable} ${handFont.variable}`}>{children}</body>
+      <body className={`${bodyFont.variable} ${handFont.variable}`}>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

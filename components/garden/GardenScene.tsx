@@ -6,6 +6,7 @@ import {
   getCourseOrderedMonthFlowers,
   type MonthFlower
 } from "@/lib/game/monthFlowers";
+import { useLanguage } from "@/lib/i18n";
 import type { GardenSceneItem } from "@/lib/types";
 
 interface GardenSceneProps {
@@ -383,6 +384,7 @@ function MonthFlowerBed({
 }: {
   completedMonthIndexes: number[];
 }) {
+  const { language } = useLanguage();
   const completedMonths = new Set(completedMonthIndexes);
   const flowers = getCourseOrderedMonthFlowers();
 
@@ -407,7 +409,7 @@ function MonthFlowerBed({
                 )}
               </div>
               <span className="relative z-20 w-full truncate text-center font-mono text-[7px] font-black uppercase leading-none text-garden-cocoa sm:text-[9px]">
-                {flower.shortName}
+                {language === "zh" ? `${flower.monthIndex + 1}月` : flower.shortName}
               </span>
             </div>
           );
@@ -487,6 +489,7 @@ export function GardenScene({
   unlockedItems,
   completedMonthIndexes
 }: GardenSceneProps) {
+  const { t } = useLanguage();
   const unlockedItemSet = new Set(unlockedItems);
   const hasDecorations = unlockedItems.length > 0 || completedMonthIndexes.length > 0;
   const [avatarX, setAvatarX] = useState(50);
@@ -637,10 +640,10 @@ export function GardenScene({
         {!hasDecorations ? (
           <div className="pointer-events-none absolute left-1/2 top-16 z-40 w-[78%] -translate-x-1/2 border-4 border-garden-cocoa bg-garden-ivory p-3 text-center shadow-[4px_4px_0_#4A342A] sm:w-auto">
             <p className="font-mono text-[10px] font-black uppercase text-garden-moss">
-              Little garden
+              {t("littleGarden")}
             </p>
             <p className="mt-1 font-hand text-2xl leading-7 text-garden-cocoa">
-              Keep learning to fill the garden.
+              {t("keepLearningGarden")}
             </p>
           </div>
         ) : null}

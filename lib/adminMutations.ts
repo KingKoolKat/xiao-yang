@@ -1,10 +1,5 @@
 import "server-only";
 
-import {
-  AVATAR_SETTING_KEY,
-  normalizeAvatarSprite,
-  type AvatarSprite
-} from "@/lib/avatar";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import type { Lesson, Word } from "@/lib/types";
 
@@ -68,24 +63,5 @@ export async function saveAdminLesson(
 
   if (linksError) {
     throw linksError;
-  }
-}
-
-export async function saveAdminAvatarSprite(
-  sprite: AvatarSprite
-): Promise<void> {
-  const supabase = getAdminSupabaseClient();
-  const normalizedSprite = normalizeAvatarSprite(sprite);
-  const { error } = await supabase.from("app_settings").upsert(
-    {
-      key: AVATAR_SETTING_KEY,
-      value: normalizedSprite,
-      updated_at: new Date().toISOString()
-    },
-    { onConflict: "key" }
-  );
-
-  if (error) {
-    throw error;
   }
 }

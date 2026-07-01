@@ -1,5 +1,8 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { getMonthTheme } from "@/lib/game/monthThemes";
+import { getLocalizedMonthName, useLanguage } from "@/lib/i18n";
 import type { MonthBuilding } from "@/lib/game/types";
 
 interface PixelMonthBuildingProps {
@@ -7,14 +10,6 @@ interface PixelMonthBuildingProps {
   isFocused: boolean;
   onEnter: (building: MonthBuilding) => void;
 }
-
-const statusLabels = {
-  locked: "LOCKED",
-  open: "OPEN",
-  current: "TODAY",
-  completed: "DONE",
-  empty: "LOCKED"
-};
 
 function getCardBackground(building: MonthBuilding): string {
   const theme = getMonthTheme(building.monthIndex);
@@ -43,6 +38,7 @@ export function PixelMonthBuilding({
   isFocused,
   onEnter
 }: PixelMonthBuildingProps) {
+  const { language, t } = useLanguage();
   const disabled = building.status === "locked" || building.status === "empty";
   const theme = getMonthTheme(building.monthIndex);
   const cardStyle: CSSProperties = {
@@ -83,11 +79,19 @@ export function PixelMonthBuilding({
         className="font-mono text-[10px] font-black uppercase"
         style={{ color: disabled ? "#766456" : theme.accent }}
       >
-        {statusLabels[building.status]}
+        {building.status === "current"
+          ? t("today")
+          : building.status === "completed"
+            ? t("done")
+            : building.status === "open"
+              ? t("open")
+              : t("locked")}
       </p>
-      <h2 className="mt-1 font-hand text-xl leading-6 text-garden-cocoa">{building.name}</h2>
+      <h2 className="mt-1 font-hand text-xl leading-6 text-garden-cocoa">
+        {getLocalizedMonthName(language, building.monthIndex)}
+      </h2>
       <p className="mt-2 font-mono text-xs font-black">
-        {building.totalDays} lessons
+        {t("lessonsCount", { count: building.totalDays })}
       </p>
     </button>
   );

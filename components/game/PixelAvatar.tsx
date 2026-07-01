@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import {
   AVATAR_GRID_HEIGHT,
   AVATAR_GRID_WIDTH,
-  AVATAR_SPRITE_EVENT,
   type AvatarSprite,
-  createDefaultAvatarSprite,
-  getSharedAvatarSprite
+  createDefaultAvatarSprite
 } from "@/lib/avatar";
 import { EQUIPPED_REWARD_EVENT, getEquippedCosmetic } from "@/lib/rewards";
 import type { CosmeticProp } from "@/lib/types";
@@ -166,23 +164,8 @@ function PixelAvatarProp({
 }
 
 export function PixelAvatar({ size = "normal" }: PixelAvatarProps) {
-  const [sprite, setSprite] = useState<AvatarSprite>(() => createDefaultAvatarSprite());
+  const sprite = createDefaultAvatarSprite();
   const [equippedProp, setEquippedProp] = useState<CosmeticProp>("none");
-
-  useEffect(() => {
-    function loadSprite() {
-      void getSharedAvatarSprite().then(setSprite);
-    }
-
-    loadSprite();
-    window.addEventListener("storage", loadSprite);
-    window.addEventListener(AVATAR_SPRITE_EVENT, loadSprite);
-
-    return () => {
-      window.removeEventListener("storage", loadSprite);
-      window.removeEventListener(AVATAR_SPRITE_EVENT, loadSprite);
-    };
-  }, []);
 
   useEffect(() => {
     function loadEquippedProp() {

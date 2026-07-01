@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { logoutAction } from "@/app/auth/actions";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 
 interface AppShellProps {
   children: ReactNode;
@@ -8,6 +12,7 @@ interface AppShellProps {
   subtitle?: string;
   showBackLink?: boolean;
   showLogout?: boolean;
+  showLanguageToggle?: boolean;
 }
 
 export function AppShell({
@@ -15,8 +20,11 @@ export function AppShell({
   title = "小羊学中文",
   subtitle,
   showBackLink = true,
-  showLogout = true
+  showLogout = true,
+  showLanguageToggle = true
 }: AppShellProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-garden-dew text-garden-cocoa">
       <div className="mx-auto min-h-screen w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:px-6">
@@ -24,7 +32,7 @@ export function AppShell({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <Link href="/" className="block min-w-0">
               <p className="font-mono text-xs font-black uppercase text-garden-moss">
-                Xiao Yang Learns Chinese
+                {t("brand")}
               </p>
               <h1 className="mt-1 font-hand text-3xl leading-9 text-garden-cocoa">
                 {title}
@@ -36,12 +44,13 @@ export function AppShell({
               ) : null}
             </Link>
             <div className="flex flex-wrap gap-2">
+              {showLanguageToggle ? <LanguageToggle /> : null}
               {showBackLink ? (
                 <Link
                   href="/"
                   className="border-2 border-garden-cocoa bg-garden-leaf px-3 py-2 font-mono text-xs font-black text-garden-cocoa shadow-[3px_3px_0_#4A342A]"
                 >
-                  Back
+                  {t("back")}
                 </Link>
               ) : null}
               {showLogout ? (
@@ -50,7 +59,7 @@ export function AppShell({
                     type="submit"
                     className="border-2 border-garden-cocoa bg-garden-ivory px-3 py-2 font-mono text-xs font-black text-garden-cocoa shadow-[3px_3px_0_#4A342A]"
                   >
-                    Sign out
+                    {t("signOut")}
                   </button>
                 </form>
               ) : null}

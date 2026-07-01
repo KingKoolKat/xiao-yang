@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { saveLessonAction } from "@/app/admin/actions";
-import { AvatarPixelEditor } from "@/components/admin/AvatarPixelEditor";
 import { DictionaryCard } from "@/components/DictionaryCard";
 import { ProgressPill } from "@/components/ProgressPill";
 import { getSharedWords, saveLocalAdminLesson } from "@/lib/adminLessons";
@@ -310,6 +309,7 @@ export function AdminLessonBuilder({ logoutAction }: AdminLessonBuilderProps) {
       title="Lesson Admin"
       subtitle="Add a YouTube lesson and dictionary words."
       showLogout={false}
+      showLanguageToggle={false}
     >
       <form action={logoutAction} className="mb-5 flex justify-end">
         <button
@@ -319,7 +319,6 @@ export function AdminLessonBuilder({ logoutAction }: AdminLessonBuilderProps) {
           Log out
         </button>
       </form>
-      <AvatarPixelEditor />
       <form onSubmit={handleSubmit} className="space-y-5">
         <section className="rounded-2xl border border-garden-pond bg-garden-ivory p-5 shadow-soft">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">

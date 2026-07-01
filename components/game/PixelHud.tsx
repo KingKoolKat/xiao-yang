@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/auth/actions";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 
 interface PixelHudProps {
   streak: number;
@@ -18,6 +20,8 @@ export function PixelHud({
   onGoToToday,
   onBackToHub
 }: PixelHudProps) {
+  const { t } = useLanguage();
+
   return (
     <header className="border-4 border-garden-cocoa bg-garden-ivory p-3 shadow-[6px_6px_0_#4A342A]">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -29,10 +33,10 @@ export function PixelHud({
         </div>
         <div className="flex flex-wrap gap-2 font-mono text-xs font-black">
           <span className="border-2 border-garden-cocoa bg-garden-petal px-2 py-1">
-            Streak {streak}
+            {t("streak")} {streak}
           </span>
           <span className="border-2 border-garden-cocoa bg-garden-leaf px-2 py-1">
-            Words {wordsLearned}
+            {t("words")} {wordsLearned}
           </span>
         </div>
       </div>
@@ -42,19 +46,19 @@ export function PixelHud({
           onClick={onGoToToday}
           className="border-2 border-garden-cocoa bg-garden-seed px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Go to today
+          {t("goToToday")}
         </button>
         <Link
           href="/dictionary"
           className="border-2 border-garden-cocoa bg-garden-petal px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Dictionary
+          {t("dictionary")}
         </Link>
         <Link
           href="/garden"
           className="border-2 border-garden-cocoa bg-garden-leaf px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
         >
-          Garden
+          {t("garden")}
         </Link>
         {onBackToHub ? (
           <button
@@ -62,7 +66,7 @@ export function PixelHud({
             onClick={onBackToHub}
             className="border-2 border-garden-cocoa bg-garden-leaf px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
           >
-            Months
+            {t("months")}
           </button>
         ) : null}
         <form action={logoutAction}>
@@ -70,9 +74,10 @@ export function PixelHud({
             type="submit"
             className="border-2 border-garden-cocoa bg-garden-ivory px-3 py-2 font-mono text-xs font-black shadow-[3px_3px_0_#4A342A]"
           >
-            Sign out
+            {t("signOut")}
           </button>
         </form>
+        <LanguageToggle />
       </div>
     </header>
   );

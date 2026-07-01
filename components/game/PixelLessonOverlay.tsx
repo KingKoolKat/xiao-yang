@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { PixelAvatar } from "@/components/game/PixelAvatar";
 import { YouTubeLessonVideo } from "@/components/YouTubeLessonVideo";
+import { useLanguage } from "@/lib/i18n";
 import type { Lesson } from "@/lib/types";
 import { getYouTubeVideoId } from "@/lib/youtube";
 
@@ -17,6 +18,7 @@ export function PixelLessonOverlay({
   onClose,
   onComplete
 }: PixelLessonOverlayProps) {
+  const { t } = useLanguage();
   const [completed, setCompleted] = useState(false);
   const [saving, setSaving] = useState(false);
   const completionStartedRef = useRef(false);
@@ -40,24 +42,24 @@ export function PixelLessonOverlay({
         {completed ? (
           <div className="text-center">
             <p className="font-mono text-xs font-black uppercase text-garden-moss">
-              Lesson complete
+              {t("lessonComplete")}
             </p>
             <div className="mx-auto mt-4 flex h-24 w-32 items-end justify-center border-4 border-garden-cocoa bg-garden-leaf p-3 shadow-[5px_5px_0_#4A342A]">
               <PixelAvatar />
               <span className="ml-3 h-8 w-5 border-2 border-garden-cocoa bg-garden-blossom" />
             </div>
             <h2 className="mt-3 font-hand text-4xl text-garden-clay">
-              New words planted
+              {t("newWordsPlanted")}
             </h2>
             <p className="mt-4 text-garden-taupe">
-              Day {lesson.dayNumber} is saved in Xiao Yang’s Chinese lessons.
+              {t("daySaved", { day: lesson.dayNumber })}
             </p>
             <button
               type="button"
               onClick={onClose}
               className="mt-6 border-4 border-garden-cocoa bg-garden-leaf px-5 py-3 font-mono text-sm font-black shadow-[4px_4px_0_#4A342A]"
             >
-              Back to lessons
+              {t("backToLessons")}
             </button>
           </div>
         ) : (
@@ -65,7 +67,7 @@ export function PixelLessonOverlay({
             <div className="mb-4 flex items-start justify-between gap-3 border-b-4 border-garden-cocoa pb-3">
               <div>
                 <p className="font-mono text-xs font-black uppercase text-garden-moss">
-                  Day {lesson.dayNumber}
+                  {t("day")} {lesson.dayNumber}
                 </p>
                 <h2 className="font-hand text-3xl leading-9 text-garden-cocoa">
                   {lesson.title}
@@ -93,10 +95,10 @@ export function PixelLessonOverlay({
 
             <p className="mt-4 border-4 border-garden-cocoa bg-garden-leaf p-4 text-sm font-black leading-6 text-garden-cocoa shadow-[4px_4px_0_#4A342A]">
               {saving
-                ? "Saving your lesson..."
+                ? t("savingLesson")
                 : videoId
-                  ? "Watch the video to the end to complete today’s lesson."
-                  : "This lesson needs a valid YouTube link before it can be completed."}
+                  ? t("watchToEnd")
+                  : t("invalidVideo")}
             </p>
           </>
         )}

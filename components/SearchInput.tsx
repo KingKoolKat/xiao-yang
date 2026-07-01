@@ -1,4 +1,7 @@
+"use client";
+
 import { Search } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface SearchInputProps {
   value: string;
@@ -9,12 +12,14 @@ interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search hanzi, pinyin, or English"
+  placeholder
 }: SearchInputProps) {
+  const { t } = useLanguage();
+
   return (
     <label className="block border-4 border-garden-cocoa bg-garden-mist p-2 shadow-[4px_4px_0_#4A342A]">
       <span className="mb-2 block font-mono text-[10px] font-black uppercase text-garden-moss">
-        Search
+        {t("search")}
       </span>
       <span className="relative block">
         <Search
@@ -24,7 +29,7 @@ export function SearchInput({
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("searchPlaceholder")}
           autoCapitalize="none"
           autoComplete="off"
           autoCorrect="off"

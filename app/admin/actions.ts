@@ -3,14 +3,8 @@
 import "server-only";
 
 import { revalidatePath } from "next/cache";
-import { saveAdminAvatarSprite, saveAdminLesson } from "@/lib/adminMutations";
+import { saveAdminLesson } from "@/lib/adminMutations";
 import { requireAdminAuthenticated } from "@/lib/adminAuth";
-import {
-  AVATAR_GRID_HEIGHT,
-  AVATAR_GRID_WIDTH,
-  normalizeAvatarSprite,
-  type AvatarSprite
-} from "@/lib/avatar";
 import { isAdminSupabaseConfigured } from "@/lib/supabase/admin";
 import type { Lesson, Word } from "@/lib/types";
 import { getYouTubeVideoId } from "@/lib/youtube";
@@ -18,7 +12,6 @@ import { getYouTubeVideoId } from "@/lib/youtube";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function requireString(
   value: unknown,
@@ -120,28 +113,6 @@ function validateLesson(value: unknown, words: Word[]): Lesson {
   };
 }
 
-function validateAvatarSprite(value: unknown): AvatarSprite {
-  if (!value || typeof value !== "object") {
-    throw new Error("Avatar data is invalid.");
-  }
-
-  const sprite = value as Partial<AvatarSprite>;
-
-  if (
-    sprite.width !== AVATAR_GRID_WIDTH ||
-    sprite.height !== AVATAR_GRID_HEIGHT ||
-    !Array.isArray(sprite.pixels) ||
-    sprite.pixels.length !== AVATAR_GRID_WIDTH * AVATAR_GRID_HEIGHT ||
-    !sprite.pixels.every(
-      (pixel) => pixel === null || (typeof pixel === "string" && HEX_COLOR_PATTERN.test(pixel))
-    )
-  ) {
-    throw new Error("Avatar sprite is invalid.");
-  }
-
-  return normalizeAvatarSprite(sprite);
-}
-
 export async function saveLessonAction(
   lessonValue: unknown,
   wordValues: unknown
@@ -162,24 +133,6 @@ export async function saveLessonAction(
   await saveAdminLesson(lesson, words);
   revalidatePath("/");
   revalidatePath("/dictionary");
-  revalidatePath("/admin");
-
-  return { mode: "supabase" };
-}
-
-export async function saveAvatarSpriteAction(
-  spriteValue: unknown
-): Promise<{ mode: "supabase" | "local" }> {
-  await requireAdminAuthenticated();
-  const sprite = validateAvatarSprite(spriteValue);
-
-  if (!isAdminSupabaseConfigured) {
-    return { mode: "local" };
-  }
-
-  await saveAdminAvatarSprite(sprite);
-  revalidatePath("/");
-  revalidatePath("/garden");
   revalidatePath("/admin");
 
   return { mode: "supabase" };

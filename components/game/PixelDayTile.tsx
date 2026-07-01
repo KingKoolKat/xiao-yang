@@ -1,7 +1,10 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { PixelAvatar } from "@/components/game/PixelAvatar";
 import type { MonthTheme } from "@/lib/game/monthThemes";
 import type { CalendarDayTile } from "@/lib/game/types";
+import { useLanguage } from "@/lib/i18n";
 
 interface PixelDayTileProps {
   day: CalendarDayTile;
@@ -27,6 +30,7 @@ function getStatusBackground(day: CalendarDayTile, theme: MonthTheme): string {
 }
 
 export function PixelDayTile({ day, isSelected, theme, onSelect }: PixelDayTileProps) {
+  const { t } = useLanguage();
   const todayLabel = day.isToday ? " today" : "";
   const tileStyle: CSSProperties = {
     backgroundColor: getStatusBackground(day, theme),
@@ -47,12 +51,12 @@ export function PixelDayTile({ day, isSelected, theme, onSelect }: PixelDayTileP
     >
       <span className="flex min-h-0 flex-1 flex-col items-center justify-center">
         <span className="text-[8px] uppercase leading-none sm:text-[10px]">
-          Lesson
+          {t("lesson")}
         </span>
         <span className="font-hand text-xl leading-none sm:text-2xl">{day.label}</span>
         {day.lesson ? (
           <span className="mt-1 hidden max-w-full truncate font-mono text-[9px] uppercase sm:block">
-            Day {day.lesson.dayNumber}
+            {t("day")} {day.lesson.dayNumber}
           </span>
         ) : null}
       </span>

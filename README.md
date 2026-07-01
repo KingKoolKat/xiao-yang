@@ -31,7 +31,7 @@ NEXT_PUBLIC_APP_TODAY_DATE=2026-07-01
 ```
 
 If the Supabase values are missing, the app uses mock lessons plus local admin edits, and stores completed lessons in `localStorage` under the Xiao Yang Learns Chinese progress key.
-When Supabase is configured, `/admin` saves lesson metadata, YouTube URLs, words, and the avatar sprite to Supabase so other devices see the same lesson content. Admin writes run through protected Next.js Server Actions using `SUPABASE_SECRET_KEY`; that key must never use a `NEXT_PUBLIC_` prefix or be exposed in browser code.
+When Supabase is configured, `/admin` saves lesson metadata, YouTube URLs, and words to Supabase so other devices see the same lesson content. Admin writes run through protected Next.js Server Actions using `SUPABASE_SECRET_KEY`; that key must never use a `NEXT_PUBLIC_` prefix or be exposed in browser code.
 Learner sign-in uses Supabase Auth. Completed lessons are stored in
 `user_progress` under the signed-in user ID and synchronize across devices.
 By default, the mock app assumes the course starts on July 1, 2026 and that the current app day is July 1, 2026.
@@ -52,7 +52,7 @@ Core tables live in `supabase/schema.sql`:
 - `words`: reusable dictionary entries.
 - `lesson_words`: links lessons to learned words.
 - `user_progress`: completed lessons for a user.
-- `app_settings`: shared app-level JSON settings, currently the avatar sprite.
+- `app_settings`: reserved shared app-level JSON settings for future features.
 
 Seed data for the first seven lessons is in `supabase/seed.sql`. Day 1 uses the date the seed file is run, then each later lesson unlocks one day after the previous one. The initial example sentences use `小羊`, Xiao Yang’s Chinese name.
 
@@ -96,8 +96,6 @@ through `auth.uid()` RLS policies.
 
 The learner routes redirect signed-out visitors to `/login`. `/admin` remains
 separate and continues to use `ADMIN_PASSWORD`.
-
-The `/admin` page also has an avatar pixel painter. With Supabase configured, that avatar is saved in `app_settings` and loaded by the main app on other devices.
 
 ## YouTube Lessons
 

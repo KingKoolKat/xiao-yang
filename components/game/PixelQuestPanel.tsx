@@ -1,4 +1,7 @@
+"use client";
+
 import type { CalendarDayTile, MonthBuilding } from "@/lib/game/types";
+import { getLocalizedMonthName, useLanguage } from "@/lib/i18n";
 
 type QuestLayer = "hub" | "building";
 
@@ -10,48 +13,57 @@ interface PixelQuestPanelProps {
   selectedBuilding?: MonthBuilding;
 }
 
-function getBuildingAction(building?: MonthBuilding): string {
+function getBuildingAction(
+  t: ReturnType<typeof useLanguage>["t"],
+  building?: MonthBuilding
+): string {
   if (!building) {
-    return "Move to a month tile.";
+    return t("moveToMonth");
   }
 
   if (building.status === "locked") {
-    return "This month is still locked.";
+    return t("monthLocked");
   }
 
-  return "Press Enter to open this month.";
+  return t("pressEnterMonth");
 }
 
-function getDayTitle(day?: CalendarDayTile): string {
+function getDayTitle(
+  t: ReturnType<typeof useLanguage>["t"],
+  day?: CalendarDayTile
+): string {
   if (!day) {
-    return "No day selected";
+    return t("noDaySelected");
   }
 
   if (day.lesson) {
-    return `Day ${day.calendarDay}: ${day.lesson.title}`;
+    return t("dayWithLesson", { day: day.calendarDay, title: day.lesson.title });
   }
 
-  return `Day ${day.calendarDay}: no lesson`;
+  return t("dayNoLesson", { day: day.calendarDay });
 }
 
-function getDayAction(day?: CalendarDayTile): string {
+function getDayAction(
+  t: ReturnType<typeof useLanguage>["t"],
+  day?: CalendarDayTile
+): string {
   if (!day) {
-    return "Move onto a lesson day.";
+    return t("moveToLessonDay");
   }
 
   if (day.status === "locked") {
-    return "This day opens later.";
+    return t("dayOpensLater");
   }
 
   if (!day.lesson) {
-    return "No lesson scheduled here yet.";
+    return t("noLessonScheduled");
   }
 
   if (day.status === "completed") {
-    return "Open to revisit the lesson.";
+    return t("openRevisit");
   }
 
-  return "Open to begin the lesson.";
+  return t("openBegin");
 }
 
 export function PixelQuestPanel({
@@ -61,19 +73,30 @@ export function PixelQuestPanel({
   activeDay,
   selectedBuilding
 }: PixelQuestPanelProps) {
+  const { language, t } = useLanguage();
   const isHub = layer === "hub";
   const title = isHub
-    ? focusedBuilding?.name ?? "Choose a month"
-    : getDayTitle(activeDay);
+    ? focusedBuilding
+      ? getLocalizedMonthName(language, focusedBuilding.monthIndex)
+      : t("chooseMonth")
+    : getDayTitle(t, activeDay);
   const subtitle = isHub
-    ? `${focusedBuilding?.totalDays ?? 0} lesson days`
-    : activeDay?.lesson?.description ?? activeDay?.dateKey ?? selectedBuilding?.name ?? "Month lessons";
-  const action = isHub ? getBuildingAction(focusedBuilding) : getDayAction(activeDay);
+    ? t("lessonDays", { count: focusedBuilding?.totalDays ?? 0 })
+    : activeDay?.lesson?.description ??
+      activeDay?.dateKey ??
+      (selectedBuilding
+        ? getLocalizedMonthName(language, selectedBuilding.monthIndex)
+        : t("monthLessons"));
+  const action = isHub
+    ? getBuildingAction(t, focusedBuilding)
+    : getDayAction(t, activeDay);
 
   return (
     <aside className="grid gap-2 border-4 border-garden-cocoa bg-garden-ivory p-3 font-mono text-xs font-black shadow-[6px_6px_0_#4A342A] sm:grid-cols-[1fr_auto]">
       <div>
-        <p className="uppercase text-garden-moss">{isHub ? "Current month" : "Selected day"}</p>
+        <p className="uppercase text-garden-moss">
+          {isHub ? t("currentMonth") : t("selectedDay")}
+        </p>
         <h2 className="mt-1 font-hand text-2xl leading-7 text-garden-cocoa">{title}</h2>
         <p className="mt-1 leading-5 text-garden-taupe">{subtitle}</p>
       </div>

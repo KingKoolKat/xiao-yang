@@ -99,7 +99,7 @@ export const rewards: Reward[] = [
   },
   {
     id: "highland-cow",
-    name: "Highland Cow",
+    name: "Wally",
     description: "A shaggy garden friend earned after one hundred days of learning.",
     type: "garden",
     sceneItem: "highland-cow",
