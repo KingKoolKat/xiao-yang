@@ -27,7 +27,8 @@ SUPABASE_SECRET_KEY=your-server-only-secret-key
 ADMIN_PASSWORD=4921
 ADMIN_SESSION_SECRET=change-this-for-production
 NEXT_PUBLIC_COURSE_START_DATE=2026-07-01
-NEXT_PUBLIC_APP_TODAY_DATE=2026-07-01
+# Optional: set only when you need to simulate a specific date locally
+# NEXT_PUBLIC_APP_TODAY_DATE=2026-07-01
 ```
 
 If the Supabase values are missing, the app uses mock lessons plus local admin edits, and stores completed lessons in `localStorage` under the Xiao Yang Learns Chinese progress key.

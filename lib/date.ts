@@ -37,5 +37,5 @@ export function getCourseStartDate(): string {
 }
 
 export function getAppTodayDate(): string {
-  return process.env.NEXT_PUBLIC_APP_TODAY_DATE?.trim() || getCourseStartDate();
+  return process.env.NEXT_PUBLIC_APP_TODAY_DATE?.trim() || toDateKey();
 }
